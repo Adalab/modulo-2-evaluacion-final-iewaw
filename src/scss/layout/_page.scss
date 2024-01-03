@@ -1,0 +1,19 @@
+.search {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.characters {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+
+    &--all {
+        background-color: pink;
+    }
+
+    &--favourites {
+        background-color: salmon;
+    }
+}
