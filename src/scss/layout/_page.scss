@@ -16,4 +16,37 @@
     &--favourites {
         background-color: salmon;
     }
+
+    &__title {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
+        list-style: none;
+        align-items: center;
+        justify-content: space-around;
+        padding: 30px 15px;
+    }
+
+    &__card {
+        background-color: white;
+        width: 200px;
+        height: 300px;
+        padding: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+
+        &__img {
+            max-height: 200px;
+            margin-bottom: 10px;
+        }
+    }
 }
