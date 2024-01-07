@@ -1,13 +1,15 @@
 .search {
     display: flex;
     justify-content: center;
-    margin-top: 30px;
+    padding: 30px;
+    background-color: papayawhip;
 }
 
 .characters {
-    margin-top: 30px;
+
     display: grid;
     grid-template-columns: 2fr 1fr;
+    background-color: black;
 
     &--all {
         background-color: pink;
@@ -18,7 +20,7 @@
     }
 
     &__title {
-        margin-top: 20px;
+        padding-top: 20px;
         text-align: center;
     }
 
@@ -34,7 +36,7 @@
     }
 
     &__card {
-        background-color: floralwhite;
+        background-color: violet;
         width: 160px;
         height: 200px;
         padding: 5px;
@@ -43,17 +45,21 @@
         align-items: center;
         flex-direction: column;
         text-align: center;
-        color: navy;
+        color: purple;
 
         &__img {
             max-width: 120px;
-            max-height: 100px;
+            max-height: 120px;
             margin-bottom: 10px;
         }
     }
 }
 
 .favourite {
-    background-color: navy;
-    color: floralwhite;
+    background-color: purple;
+    color: violet;
+}
+
+.hidden {
+    display: none;
 }

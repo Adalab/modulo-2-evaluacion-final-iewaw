@@ -1,38 +1,73 @@
 'use strict';
 
-// GLOBAL VARIABLES
+//QUERY SELECTORS
 const characterList = document.querySelector('.js_list_all');
 const favouriteList = document.querySelector('.js_list_favourites');
+const searchedList = document.querySelector('.js_list_search');
+const inputBox = document.querySelector('.js_input_search');
+const searchButton = document.querySelector('.js_button_search');
+
+//OTHER GLOBAL VARIABLES
 let allCharacters = [];
 let favouriteCharacters = [];
+let searchedCharacters = [];
+
 
 //ON PAGE LOAD
-fetch('//api.disneyapi.dev/character?pageSize=50')
-  .then( response => response.json() )
-  .then( data => {
-    allCharacters = data.data;
+characterList.classList.remove('hidden');
+searchedList.classList.add('hidden');
 
-    for(const character of allCharacters) {
-      renderCharacters(character);
-    }
-  });
+fetch('//api.disneyapi.dev/character?pageSize=50')
+    .then(response => response.json())
+    .then(data => {
+        allCharacters = data.data;
+
+        for (const character of allCharacters) {
+            renderCharacters(character, characterList);
+        }
+    });
+
+searchButton.addEventListener('click', handleSearch);
 
 //FUNCTIONS
+
+/**
+ * function that allows to search a character by its name
+ * @param event 
+ */
+function handleSearch(event) {
+    event.preventDefault();
+    let searchText = inputBox.value;
+
+    fetch(`//api.disneyapi.dev/character?name=${searchText}`)
+        .then(response => response.json())
+        .then(data => {
+            searchedCharacters = data.data;
+
+            characterList.classList.add('hidden');
+            searchedList.classList.remove('hidden');
+            searchedList.innerHTML = '';
+
+            for (const character of searchedCharacters) {
+                renderCharacters(character, searchedList);
+            }
+        });
+}
 
 /**
  * function that renders all characters one by one
  * @param character
  */
-function renderCharacters(character) {
-  //create characters
-  characterList.appendChild(createCharacter(character));
+function renderCharacters(character, list) {
+    //create characters
+    list.appendChild(createCharacter(character));
 
-  //add event listeners to all li elements
-  const allCards = document.querySelectorAll('.js__character__card');
+    //add event listeners to all li elements
+    const allCards = document.querySelectorAll('.js__character__card');
 
-  for (const card of allCards) {
-    card.addEventListener('click', handleClick);
-  }
+    for (const card of allCards) {
+        card.addEventListener('click', handleClick);
+    }
 }
 
 /**
@@ -41,13 +76,14 @@ function renderCharacters(character) {
  * @returns the created li element
  */
 function createCharacter(character) {
-  const newCharacter = document.createElement('li');
-  newCharacter.setAttribute('data-id', character._id);
-  newCharacter.classList.add('js__character__card');
+    const newCharacter = document.createElement('li');
+    newCharacter.setAttribute('data-id', character._id);
+    newCharacter.setAttribute('data-name', character.name);
+    newCharacter.classList.add('js__character__card');
 
-  newCharacter.insertAdjacentHTML('afterbegin', `<div class="characters__card"><img class="characters__card__img" src="${character.imageUrl ? character.imageUrl : 'https://via.placeholder.com/160x200/cfe2f3/351c75/?text=Disney'}" alt="Picture of ${character.name}"><h3 class="characters__card__name">${character.name}</h3></div>`);
+    newCharacter.insertAdjacentHTML('afterbegin', `<div class="characters__card"><img class="characters__card__img" src="${character.imageUrl ? character.imageUrl : 'https://via.placeholder.com/120x120/cfe2f3/351c75/?text=Disney'}" alt="Picture of ${character.name}"><h3 class="characters__card__name">${character.name}</h3></div>`);
 
-  return newCharacter;
+    return newCharacter;
 }
 
 /**
@@ -55,14 +91,20 @@ function createCharacter(character) {
  * @param event
  */
 function handleClick(event) {
-  //identifying the character
-  const clickedCharacter = event.currentTarget;
-  const clickedId = parseInt(clickedCharacter.dataset.id);
-  const selectedCharacter = allCharacters.find(character => character._id === clickedId);
-  const characterDiv = clickedCharacter.querySelector('.characters__card');
+    //identifying the character
+    const clickedCharacter = event.currentTarget;
+    const clickedId = parseInt(clickedCharacter.dataset.id);
+    const characterDiv = clickedCharacter.querySelector('.characters__card');
+    let selectedCharacter;
 
-  //calling the method that handles the favourite characters
-  manageFavourites(characterDiv, selectedCharacter);
+    fetch(`//api.disneyapi.dev/character/${clickedId}`)
+        .then(response => response.json())
+        .then(data => {
+
+            selectedCharacter = data.data;
+
+            manageFavourites(characterDiv, selectedCharacter);
+        });
 }
 
 /**
@@ -71,16 +113,16 @@ function handleClick(event) {
  * @param selectedCharacter, Disney character identified by id
  */
 function manageFavourites(characterDiv, selectedCharacter) {
-  if (!characterDiv.classList.contains('favourite')) {
-    characterDiv.classList.add('favourite');
-    favouriteList.appendChild(createCharacter(selectedCharacter));
-    favouriteCharacters.push(selectedCharacter);
-  } else {
-    characterDiv.classList.remove('favourite');
-    const existingCharacter = favouriteList.querySelector(`[data-id="${selectedCharacter._id}"]`);
-    if (existingCharacter) {
-      favouriteList.removeChild(existingCharacter);
-      favouriteCharacters = favouriteCharacters.filter(character => character._id !== selectedCharacter._id);
+    if (!characterDiv.classList.contains('favourite')) {
+        characterDiv.classList.add('favourite');
+        favouriteList.appendChild(createCharacter(selectedCharacter));
+        favouriteCharacters.push(selectedCharacter);
+    } else {
+        characterDiv.classList.remove('favourite');
+        const existingCharacter = favouriteList.querySelector(`[data-id="${selectedCharacter._id}"]`);
+        if (existingCharacter) {
+            favouriteList.removeChild(existingCharacter);
+            favouriteCharacters = favouriteCharacters.filter(character => character._id !== selectedCharacter._id);
+        }
     }
-  }
 }
