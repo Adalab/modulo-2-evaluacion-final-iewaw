@@ -34,19 +34,26 @@
     }
 
     &__card {
-        background-color: white;
-        width: 200px;
-        height: 300px;
+        background-color: floralwhite;
+        width: 160px;
+        height: 200px;
         padding: 5px;
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         text-align: center;
+        color: navy;
 
         &__img {
-            max-height: 200px;
+            max-width: 120px;
+            max-height: 100px;
             margin-bottom: 10px;
         }
     }
+}
+
+.favourite {
+    background-color: navy;
+    color: floralwhite;
 }
