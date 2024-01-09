@@ -3,3 +3,20 @@
   margin: 0;
   padding: 0;
 }
+
+:root {
+  font-family: 'Princess Sofia', cursive;
+  font-weight: bold;
+
+  @keyframes pulsate {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}

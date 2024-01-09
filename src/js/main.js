@@ -1,10 +1,11 @@
 'use strict';
 
 //QUERY SELECTORS
-const characterList = document.querySelector('.js_list_all');
-const favouriteList = document.querySelector('.js_list_favourites');
-const inputBox = document.querySelector('.js_input_search');
-const searchButton = document.querySelector('.js_button_search');
+const characterList = document.querySelector('.js__list_all');
+const favouriteList = document.querySelector('.js__list_favourites');
+const inputBox = document.querySelector('.js__input_search');
+const searchButton = document.querySelector('.js__button_search');
+const resetButton = document.querySelector('.js__reset');
 
 //OTHER GLOBAL VARIABLES
 let allCharacters = [];
@@ -16,7 +17,7 @@ const savedFavourites = JSON.parse(localStorage.getItem('favourites'));
 showCharacters();
 showFavourites();
 searchButton.addEventListener('click', handleSearch);
-
+resetButton.addEventListener('click', handleReset);
 
 //EVENT HANDLING FUNCTIONS
 
@@ -70,6 +71,16 @@ function handleClose(event) {
     const clickedCharacter = event.currentTarget.parentNode.parentNode;
     identifyCharacter(clickedCharacter);
 }
+
+/**
+ * function that resets favourite characters
+ */
+function handleReset() {
+    favouriteList.innerHTML = '';
+    favouriteCharacters = [];
+    localStorage.setItem('favourites', JSON.stringify(favouriteCharacters));
+}
+
 
 //OTHER FUNCTIONS
 
@@ -128,7 +139,7 @@ function renderCharacters(character) {
 
     //add event listeners to all li elements
     for (const card of allCards) {
-        if (!card.closest('.js_list_favourites')) {
+        if (!card.closest('.js__list_favourites')) {
             card.addEventListener('click', handleClick);
             card.classList.add('clickable');
         }
@@ -155,7 +166,7 @@ function createCharacter(character) {
 }
 
 /**
- * function that shows favourite characters from local storage on page load
+ * function that shows favourite characters from the local storage on page load
  */
 function showFavourites() {
     if (savedFavourites !== null) {
@@ -176,10 +187,10 @@ function manageFavourites(characterDiv, selectedCharacter) {
     const existingCharacter = favouriteList.querySelector(`[data-id="${selectedCharacter._id}"]`);
 
     //check conditions to apply the logic
-    if (!characterDiv.classList.contains('favourite') && !existingCharacter && characterDiv.closest('.js_list_all')) {
+    if (!characterDiv.classList.contains('favourite') && !existingCharacter && characterDiv.closest('.js__list_all')) {
         characterDiv.classList.add('favourite');
         markFavourite(selectedCharacter);
-    } else if (!characterDiv.classList.contains('favourite') && existingCharacter && characterDiv.closest('.js_list_all')) {
+    } else if (!characterDiv.classList.contains('favourite') && existingCharacter && characterDiv.closest('.js__list_all')) {
         characterDiv.classList.add('favourite');
     } else {
         characterDiv.classList.remove('favourite');

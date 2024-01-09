@@ -5,31 +5,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Disney Characters ❤️</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mouse+Memoirs&family=Princess+Sofia&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="./scss/main.scss" />
     <link rel="icon" href="./images/disney.png" />
 </head>
 
 <body>
     <header class="header">
-        <h1>🤩 DISNEY CHARACTERS 😻</h1>
+        <h1>DISNEY CHARACTERS</h1>
     </header>
     <main>
         <section class="search">
             <form class="form">
-                <input class="search__input js_input_search" type="text" placeholder="Example: Ariel" />
-                <button class="search__button js_button_search">SEARCH</button>
+                <input class="search__input js__input_search" type="text" placeholder="&nbsp;&nbsp;Example: Ariel" />
+                <button class="search__button js__button_search">SEARCH</button>
             </form>
         </section>
         <div class="characters js__characters">
             <section class="characters--all">
                 <h2 class="characters__title">Characters 🤩</h2>
-                <ul class="js_list_all characters__list">
+                <ul class="js__list_all characters__list">
                 </ul>
             </section>
             <section class="characters--favourites">
                 <h2 class="characters__title">Favourites 😻</h2>
-                <ul class="js_list_favourites characters__list">
+                <ul class="js__list_favourites characters__list">
                 </ul>
+                <button class="search__button js__reset">RESET</button>
             </section>
         </div>
     </main>

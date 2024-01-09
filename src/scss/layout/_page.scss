@@ -4,13 +4,28 @@
     padding: 30px;
     background-color: papayawhip;
 
+    &__input {
+        width: 40vw;
+        height: 30px;
+        margin-right: 10px;
+        border: 2px solid darkmagenta;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
     &__button {
         cursor: pointer;
-        color: plum;
-        background-color: palevioletred;
+        background-color: fuchsia;
         height: 30px;
-        width: 60px;
+        width: 80px;
         border-radius: 10px;
+        font-family: 'Princess Sofia', cursive;
+        border: 2px solid darkmagenta;
+        color: darkmagenta;
+    }
+
+    &__button:hover {
+        animation: pulsate 1s infinite;
     }
 }
 
@@ -26,6 +41,10 @@
 
     &--favourites {
         background-color: salmon;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 30px;
     }
 
     &__title {
@@ -78,5 +97,15 @@
 
 .clickable {
     cursor: pointer;
+}
 
+.clickable:hover {
+    animation: pulsate 1s infinite;
+}
+
+@media all and (max-width:400px) {
+    .characters {
+        display: flex;
+        flex-direction: column;
+    }
 }

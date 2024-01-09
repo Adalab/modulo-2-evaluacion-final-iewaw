@@ -1,6 +1,12 @@
 .header {
     display: flex;
-    justify-content: center;
-    padding: 30px;
-    background-color: blueviolet;
+    justify-content: left;
+    padding-top: 170px;
+    padding-left: 10px;
+    background: url('../images/aristocats.jpg') center/cover no-repeat;
+    opacity: 0.9;
+    color: pink;
+    text-shadow: 2px 2px 4px black;
+    font-size: 24px;
+    font-weight: bold;
 }
