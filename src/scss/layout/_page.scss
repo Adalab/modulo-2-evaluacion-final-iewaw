@@ -56,11 +56,15 @@
         text-align: center;
         color: purple;
         border-radius: 10px;
-        cursor: pointer;
+        font-size: 14px;
+
+        &__close {
+            align-self: flex-end;
+        }
 
         &__img {
             max-width: 120px;
-            max-height: 130px;
+            max-height: 120px;
             margin-bottom: 10px;
             border-radius: 10px;
         }
@@ -70,4 +74,9 @@
 .favourite {
     background-color: purple;
     color: violet;
+}
+
+.clickable {
+    cursor: pointer;
+
 }
