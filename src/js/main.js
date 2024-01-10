@@ -1,21 +1,21 @@
 'use strict';
 
 //QUERY SELECTORS
-const characterList = document.querySelector('.js__list_all');
-const favouriteList = document.querySelector('.js__list_favourites');
+const characterListUl = document.querySelector('.js__list_all');
+const favouriteListUl = document.querySelector('.js__list_favourites');
 const inputBox = document.querySelector('.js__input_search');
 const searchButton = document.querySelector('.js__button_search');
 const resetButton = document.querySelector('.js__reset');
 
 //OTHER GLOBAL VARIABLES
-let allCharacters = [];
-let favouriteCharacters = [];
-let searchedCharacters = [];
-const savedFavourites = JSON.parse(localStorage.getItem('favourites'));
+let allCharactersArray = [];
+let favouriteCharactersArray = [];
+let searchedCharactersArray = [];
+const savedFavouritesLS = JSON.parse(localStorage.getItem('favourites'));
 
 //ON PAGE LOAD
-showCharacters();
 showFavourites();
+showCharacters();
 searchButton.addEventListener('click', handleSearch);
 resetButton.addEventListener('click', handleReset);
 
@@ -29,23 +29,24 @@ function handleSearch(event) {
     event.preventDefault();
 
     //obtain text typed by the user
-    let searchText = inputBox.value;
+    let searchedText = inputBox.value;
 
     //fetch data from the server
-    fetch(`//api.disneyapi.dev/character?name=${searchText}`)
+    fetch(`//api.disneyapi.dev/character?name=${searchedText}`)
         .then(response => response.json())
         .then(data => {
-            characterList.innerHTML = '';
+            characterListUl.innerHTML = '';
 
-            //check if the result is an array or an object and render matching charascter(s) accordingly
+            //check if the result is an array or an object and render matching character(s) accordingly
             if (Array.isArray(data.data)) {
-                searchedCharacters = data.data;
-
-                for (const character of searchedCharacters) {
-                    renderCharacters(character);
+                searchedCharactersArray = data.data;
+                for (const characterObject of searchedCharactersArray) {
+                    renderCharacters(characterObject);
+                    checkFavourite(characterObject);
                 }
             } else {
                 renderCharacters(data.data);
+                checkFavourite(data.data);
             }
         });
 }
@@ -57,8 +58,8 @@ function handleSearch(event) {
 function handleClick(event) {
 
     //identify the character
-    const clickedCharacter = event.currentTarget;
-    identifyCharacter(clickedCharacter);
+    const clickedCharacterLi = event.currentTarget;
+    identifyCharacter(clickedCharacterLi);
 }
 
 /**
@@ -68,17 +69,28 @@ function handleClick(event) {
 function handleClose(event) {
 
     //identify the character
-    const clickedCharacter = event.currentTarget.parentNode.parentNode;
-    identifyCharacter(clickedCharacter);
+    const clickedCharacterLi = event.currentTarget.parentNode.parentNode;
+    identifyCharacter(clickedCharacterLi);
+    const clickedId = parseInt(clickedCharacterLi.dataset.id);
+
+    //find the character on the main list to remove favourite
+    const identifiedCharacterLi = characterListUl.querySelector(`[data-id="${clickedId}"]`);
+    const identifiedCharacterDiv = identifiedCharacterLi.querySelector('.characters__card');
+    identifiedCharacterDiv.classList.remove('favourite');
 }
 
 /**
  * function that resets favourite characters
  */
 function handleReset() {
-    favouriteList.innerHTML = '';
-    favouriteCharacters = [];
-    localStorage.setItem('favourites', JSON.stringify(favouriteCharacters));
+    favouriteListUl.innerHTML = '';
+    favouriteCharactersArray = [];
+    localStorage.setItem('favourites', JSON.stringify(favouriteCharactersArray));
+
+    const allCardsDiv = document.querySelectorAll('.characters__card');
+    for (const cardDiv of allCardsDiv) {
+        cardDiv.classList.remove('favourite');
+    }
 }
 
 
@@ -86,24 +98,24 @@ function handleReset() {
 
 /**
  * function that identifies the character by its id
- * @param clickedCharacter
+ * @param clickedCharacterLi
  */
-function identifyCharacter(clickedCharacter) {
+function identifyCharacter(clickedCharacterLi) {
 
     //obtain the clicked card's id
-    const clickedId = parseInt(clickedCharacter.dataset.id);
-    const characterDiv = clickedCharacter.querySelector('.characters__card');
-    let selectedCharacter;
+    const clickedId = parseInt(clickedCharacterLi.dataset.id);
+    const characterDiv = clickedCharacterLi.querySelector('.characters__card');
+    let selectedCharacterObject;
 
     //fetch data from the server to retrieve the search result
     fetch(`//api.disneyapi.dev/character/${clickedId}`)
         .then(response => response.json())
         .then(data => {
 
-            selectedCharacter = data.data;
+            selectedCharacterObject = data.data;
 
             //call the function that manages favourite cards
-            manageFavourites(characterDiv, selectedCharacter);
+            manageFavourites(characterDiv, selectedCharacterObject);
         });
 }
 
@@ -116,117 +128,137 @@ function showCharacters() {
     fetch('//api.disneyapi.dev/character?pageSize=50')
         .then(response => response.json())
         .then(data => {
-            allCharacters = data.data;
+            allCharactersArray = data.data;
 
-            for (const character of allCharacters) {
-                renderCharacters(character, characterList);
+            for (const characterObject of allCharactersArray) {
+                //render all characters
+                renderCharacters(characterObject);
+                //check if any character is a current favourite to mark it
+                checkFavourite(characterObject);
             }
         });
 }
 
 /**
  * function that renders all characters one by one
- * @param character
+ * @param characterObject
  */
-function renderCharacters(character) {
+function renderCharacters(characterObject) {
 
     //create characters
-    characterList.appendChild(createCharacter(character));
-
+    characterListUl.appendChild(createCharacter(characterObject));
 
     //select all li elements
-    const allCards = document.querySelectorAll('.js__character__card');
+    const allCardsLi = document.querySelectorAll('.js__character__card');
 
     //add event listeners to all li elements
-    for (const card of allCards) {
-        if (!card.closest('.js__list_favourites')) {
-            card.addEventListener('click', handleClick);
-            card.classList.add('clickable');
+    for (const cardLi of allCardsLi) {
+        if (!cardLi.closest('.js__list_favourites')) {
+            cardLi.addEventListener('click', handleClick);
+            cardLi.classList.add('clickable');
         }
     }
 }
 
 /**
- * function that creates and shows a new li element
- * @param character
- * @returns the created li element
+ * function that creates a new li element
+ * @param characterObject
+ * @returns li
  */
-function createCharacter(character) {
+function createCharacter(characterObject) {
 
     //create new li element and set its attributes
-    const newCharacter = document.createElement('li');
-    newCharacter.setAttribute('data-id', character._id);
-    newCharacter.setAttribute('data-name', character.name);
-    newCharacter.classList.add('js__character__card');
+    const newCharacterLi = document.createElement('li');
+    newCharacterLi.setAttribute('data-id', characterObject._id);
+    newCharacterLi.setAttribute('data-name', characterObject.name);
+    newCharacterLi.classList.add('js__character__card');
 
     //create inner HTML content
-    newCharacter.insertAdjacentHTML('afterbegin', `<div class="characters__card"><h3 class="characters__card__close js__card__close"></h3><img class="characters__card__img" src="${character.imageUrl ? character.imageUrl : 'https://via.placeholder.com/120x120/cfe2f3/351c75/?text=Disney'}" alt="Picture of ${character.name}"><h3 class="characters__card__name js__card__name">${character.name}</h3></div>`);
+    newCharacterLi.insertAdjacentHTML('afterbegin', `<div class="characters__card"><h3 class="characters__card__close js__card__close"></h3><img class="characters__card__img" src="${characterObject.imageUrl ? characterObject.imageUrl : 'https://via.placeholder.com/120x120/cfe2f3/351c75/?text=Disney'}" alt="Picture of ${characterObject.name}"><h3 class="characters__card__name js__card__name">${characterObject.name}</h3></div>`);
 
-    return newCharacter;
+    return newCharacterLi;
 }
 
 /**
  * function that shows favourite characters from the local storage on page load
  */
 function showFavourites() {
-    if (savedFavourites !== null) {
-        for (const favourite of savedFavourites) {
-            markFavourite(favourite);
+    if (savedFavouritesLS !== null) {
+        for (const favouriteObject of savedFavouritesLS) {
+            markFavourite(favouriteObject);
         }
     }
 }
 
 /**
  * function that handles the favourite characters logic
- * @param characterDiv, the html element to which css changes will be applied when marked as favourite
- * @param selectedCharacter, Disney character identified by id
+ * @param characterDiv
+ * @param selectedCharacterObject
  */
-function manageFavourites(characterDiv, selectedCharacter) {
+function manageFavourites(characterDiv, selectedCharacterObject) {
 
     //check if the character is already a favourite
-    const existingCharacter = favouriteList.querySelector(`[data-id="${selectedCharacter._id}"]`);
+    const currentFavourite = favouriteListUl.querySelector(`[data-id="${selectedCharacterObject._id}"]`);
 
     //check conditions to apply the logic
-    if (!characterDiv.classList.contains('favourite') && !existingCharacter && characterDiv.closest('.js__list_all')) {
+    if (!characterDiv.classList.contains('favourite') && !currentFavourite && characterDiv.closest('.js__list_all')) {
         characterDiv.classList.add('favourite');
-        markFavourite(selectedCharacter);
-    } else if (!characterDiv.classList.contains('favourite') && existingCharacter && characterDiv.closest('.js__list_all')) {
+        markFavourite(selectedCharacterObject);
+    } else if (!characterDiv.classList.contains('favourite') && currentFavourite && characterDiv.closest('.js__list_all')) {
         characterDiv.classList.add('favourite');
     } else {
         characterDiv.classList.remove('favourite');
-        if (existingCharacter) {
-            favouriteList.removeChild(existingCharacter);
-            favouriteCharacters = favouriteCharacters.filter(character => character._id !== selectedCharacter._id);
+        if (currentFavourite) {
+            favouriteListUl.removeChild(currentFavourite);
+            favouriteCharactersArray = favouriteCharactersArray.filter(character => character._id !== selectedCharacterObject._id);
         }
     }
     //save the favourites to the local storage
-    localStorage.setItem('favourites', JSON.stringify(favouriteCharacters));
+    localStorage.setItem('favourites', JSON.stringify(favouriteCharactersArray));
 }
 
 /**
  * function that marks and saves favourite cards
- * @param favourite
+ * @param favourite JS object
  */
 function markFavourite(favourite) {
 
     //create new li element in favourites
-    const newFavourite = createCharacter(favourite);
+    const newFavouriteLi = createCharacter(favourite);
 
     //add a cat icon to mark favourites
-    const newFavouriteName = newFavourite.querySelector('.js__card__name');
+    const newFavouriteName = newFavouriteLi.querySelector('.js__card__name');
     const favouriteMark = document.createTextNode('😻');
     newFavouriteName.appendChild(favouriteMark);
 
     //add a close button to the favourite card
-    const newFavouriteClose = newFavourite.querySelector('.js__card__close');
+    const newFavouriteClose = newFavouriteLi.querySelector('.js__card__close');
     const closeButton = document.createTextNode('❌');
     newFavouriteClose.appendChild(closeButton);
     newFavouriteClose.classList.add('clickable');
 
     //add an event listener to the close button
     newFavouriteClose.addEventListener('click', handleClose);
-    favouriteList.appendChild(newFavourite);
+    favouriteListUl.appendChild(newFavouriteLi);
 
     //save the favourite character to the favourite list
-    favouriteCharacters.push(favourite);
+    favouriteCharactersArray.push(favourite);
+}
+
+/**
+ * function that checks if a character is a favourite
+ * @param  character JS object
+ */
+function checkFavourite(characterObject) {
+
+    const currentFavourite = favouriteListUl.querySelector(`[data-id="${characterObject._id}"]`);
+
+    if (currentFavourite) {
+        // add the 'favourite' class to the corresponding character element
+        const characterDiv = document.querySelector(`[data-id="${characterObject._id}"]`);
+        if (characterDiv) {
+            const currentLi = characterDiv.querySelector('.characters__card');
+            currentLi.classList.add('favourite');
+        }
+    }
 }
